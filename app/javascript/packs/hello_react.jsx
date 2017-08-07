@@ -52,10 +52,9 @@ class List extends React.Component {
   }
 
   render() {
-    console.log(this.props.filterBy);
 
     let items = this.props.items
-            .filter(item =>  this.props.filterBy && this.props.filterBy.length > 1 &&  _.lowerCase(item).indexOf(_.lowerCase(this.props.filterBy)) >= 0 )
+            .filter(item =>  this.props.filterBy && this.props.filterBy.length > 1 &&  _.toLower(item).indexOf(_.toLower(this.props.filterBy)) >= 0 )
             .map((item, i) => <li key={i}>{item}</li>)
 
     if (_.isEmpty(this.props.filterBy)) {
