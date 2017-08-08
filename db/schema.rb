@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160530213915) do
+ActiveRecord::Schema.define(version: 20170808015043) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -20,7 +20,10 @@ ActiveRecord::Schema.define(version: 20160530213915) do
     t.citext "room_code", null: false
     t.datetime "expires_on"
     t.integer "pick_number"
-    t.boolean "ready"
+    t.string "status", limit: 30, default: "new", null: false
+    t.string "matchup", limit: 80
+    t.bigint "player_id"
+    t.index ["player_id"], name: "index_games_on_player_id"
   end
 
   create_table "picks", id: :serial, force: :cascade do |t|
@@ -40,6 +43,7 @@ ActiveRecord::Schema.define(version: 20160530213915) do
     t.index ["horses"], name: "index_players_on_horses", using: :gin
   end
 
+  add_foreign_key "games", "players"
   add_foreign_key "picks", "games"
   add_foreign_key "picks", "players"
   add_foreign_key "players", "games"
