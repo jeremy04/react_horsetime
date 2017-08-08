@@ -7,6 +7,7 @@
     "babel-loader": "7.x",
     "babel-preset-env": "^1.4.0",
     "babel-preset-react": "^6.24.1",
+    "bootstrap": "4.0.0-alpha.6",
     "coffee-loader": "^0.7.3",
     "coffee-script": "^1.12.6",
     "compression-webpack-plugin": "^0.4.0",
@@ -14,6 +15,7 @@
     "extract-text-webpack-plugin": "^2.1.0",
     "file-loader": "^0.11.1",
     "glob": "^7.1.1",
+    "jquery": "^3.2.1",
     "js-yaml": "^3.8.4",
     "node-sass": "^4.5.3",
     "path-complete-extname": "^0.1.0",
@@ -28,6 +30,7 @@
     "redux": "^3.6.0",
     "sass-loader": "^6.0.5",
     "style-loader": "^0.17.0",
+    "tether": "^1.4.0",
     "webpack": "^2.5.1",
     "webpack-manifest-plugin": "^1.1.0",
     "webpack-merge": "^4.1.0"
