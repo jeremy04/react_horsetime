@@ -1,20 +1,48 @@
-<main>
-  <div class="table-responsive">
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th>Code</th>
-          <th>Matchup</th>
-          <th>Manager</th>
-          <th>Status</th>
-          <th>Players</th>
-        </tr>
-      </thead>
-      <tbody id="games">
-        <%= render @games %>
-      </tbody>
-    </table>
-    <BR />
-    New Game
+<section class="section">
+  <div class="row" style="padding-bottom: 5px">
+    <div class="btn-group col-sm-2">
+      <a href="#" class="btn btn-primary">New Game</a>
+    </div>  
   </div>
-</main>
+ 
+  <div class="row">
+
+    <div class="col-sm-12">
+      <div class="card">
+        <div class="card-block">
+
+          <div class="card-title-block">
+            <h3 class="title">
+              Game Lobby
+            </h3>
+          </div>
+
+          <section class="example">
+
+<!--            <div class="table-responsive">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Matchup</th>
+                    <th>Status</th>
+                    <th>In</th> 
+                  </tr>
+                </thead>
+                <tbody>
+-->
+                <%= render @games %>
+<!--                </tbody>
+              </table>
+            </div>
+-->
+          </section>
+
+        </div>
+      </div>
+    </div>
+    
+  </div>
+
+
+</section>

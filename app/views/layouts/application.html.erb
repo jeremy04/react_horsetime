@@ -1,27 +1,26 @@
 <!DOCTYPE html>
-<html>
+<html class="no-js" lang="en">
   <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>ReactHorse</title>
     <%= csrf_meta_tags %>
-
+    
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'reload' %>
     <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
   </head>
 
   <body>
-    <div class="container">
-      <div class="header clearfix">
-        <nav>
-          <ul class="nav nav-pills float-right">
-            <li class="nav-item">
-              <a class="nav-link active" href="#">Games</a>
-            </li>
-          </ul>
-        </nav>
-        <h3>HorseTime</h3>
-      </div>      
 
+    <div class="main-wrapper">
+      <div class="app" id="app">
+          <%= render 'layouts/navigation' %>
+          <article class="content">
+            <%= yield %>
+          </article>
+      </div>
     </div>
-    <%= yield %>
   </body>
 </html>
