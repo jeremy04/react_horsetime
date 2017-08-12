@@ -13,7 +13,9 @@
   <div class="col-xs-5 col-sm-6 col-md-5"><%= game.matchup %></div>
   <div class="col-xs-2 col-sm-2 col-md-2"><%= game.status %></div>
     <div class="col-xs-3 col-sm-2 col-md-3" style="padding-top: 2px">
-      <a href="#" class="btn btn-primary">Join</a>
+      <% if signed_in? && current_or_guest_user.not_in_game?(game) %> 
+        <%= link_to "Join", game_join_path(game), class: "btn btn-primary" %>
+      <% end %>
     </div>
 </div>
 

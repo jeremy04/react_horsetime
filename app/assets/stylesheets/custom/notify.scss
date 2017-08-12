@@ -1,0 +1,30 @@
+[data-notify="container"][class*="alert-pastel-"] {
+  background-color: rgb(255, 255, 238);
+  border-width: 0px;
+  border-left: 5px solid rgb(255, 240, 106);
+  border-radius: 0px;
+  box-shadow: 0px 0px 5px rgba(51, 51, 51, 0.3);
+  letter-spacing: 1px;
+  padding: 10px 30px 10px 10px;
+  width: auto!important;
+}
+[data-notify="container"].alert-pastel-success {
+  background-color: #dff0d8;
+  border-left-color: #3c763d;
+}
+[data-notify="container"].alert-pastel-info {
+  border-left-color: rgb(255, 179, 40);
+}
+[data-notify="container"].alert-pastel-danger {
+  background-color: #ebccd1;
+  border-left-color: #a94442;
+}
+[data-notify="container"][class*="alert-pastel-"] > [data-notify="title"] {
+  color: rgb(80, 80, 57);
+  display: block;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+[data-notify="container"][class*="alert-pastel-"] > [data-notify="message"] {
+  font-weight: 400;
+}

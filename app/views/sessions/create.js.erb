@@ -1,0 +1,16 @@
+
+var options = {};
+
+<% unless @item %>
+  options.title = "Login failed";
+  options.message = "Invalid email address or password";
+  options.type = "danger";
+  notifyUser(options);
+<% else %>
+  <% if @redirect_to.nil? %>
+    window.location.href = "<%= Rails.configuration.app_uri %>";
+  <% else %>
+    Turbolinks.visit("<%= @redirect_to %>");
+  <% end %>
+<% end %>
+
