@@ -1,4 +1,4 @@
-class CreatePicks < ActiveRecord::Migration
+class CreatePicks < ActiveRecord::Migration[5.1]
   def change
     create_table :picks do |t|
       t.references :player, index: true, null: false
