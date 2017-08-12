@@ -21,5 +21,4 @@ test:
   password: horsetime
 
 production:
-  <<: *default
-  database: horsetime_production
+  url: <%= ENV['DATABASE_URL'] %>
