@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170811202933) do
+ActiveRecord::Schema.define(version: 20170816183829) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -21,8 +21,11 @@ ActiveRecord::Schema.define(version: 20170811202933) do
     t.datetime "expires_on"
     t.integer "pick_number"
     t.string "status", limit: 30, default: "new", null: false
-    t.string "matchup", limit: 80
     t.bigint "player_id"
+    t.string "nhl_game", limit: 50
+    t.string "home_team", limit: 50
+    t.string "away_team", limit: 50
+    t.datetime "puck_drop_at", null: false
     t.index ["player_id"], name: "index_games_on_player_id"
   end
 

@@ -1,7 +1,7 @@
 <section class="section">
   <div class="row" style="padding-bottom: 5px">
     <div class="btn-group col-sm-2">
-      <a href="#" class="btn btn-primary">New Game</a>
+      <%= link_to "New Game",  new_game_path, class: "fa fa-plus", remote: true %>
     </div>  
   </div>
  
@@ -17,25 +17,8 @@
             </h3>
           </div>
 
-          <section class="example">
-
-<!--            <div class="table-responsive">
-              <table class="table table-bordered">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Matchup</th>
-                    <th>Status</th>
-                    <th>In</th> 
-                  </tr>
-                </thead>
-                <tbody>
--->
-                <%= render @games %>
-<!--                </tbody>
-              </table>
-            </div>
--->
+          <section class="example" id="games">
+            <%= render @games %>
           </section>
 
         </div>

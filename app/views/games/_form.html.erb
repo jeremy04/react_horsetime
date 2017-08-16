@@ -1,0 +1,20 @@
+<%= form_for @game, remote: true, html: { class: 'clearfix' } do |f| %>
+  <div id='item-form' class="col-md-12">
+
+          <div class="form-group clearfix">
+            <div class='col-sm-6'>
+              <%= label_tag :matchup, "Matchup" %>
+              
+              <%= select_tag 'matchup', options_for_select(@matchups), class: 'form-control' %>
+            </div>
+          </div>
+
+
+  </div>
+
+  <div class="col-md-12 form-controls">
+    <%= button_tag(type: "submit", class: 'btn btn-success pull-right hint--top-left hint--bounce') do %>
+        <i class="fa fa-check"></i>
+    <% end %>
+  </div>
+<% end %>

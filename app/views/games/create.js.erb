@@ -1,0 +1,15 @@
+var options = {};
+
+<% if @game.errors.any? %>
+  options.title = "Error Creating Game";
+  options.message = "<%=raw @game.errors.values.join('<br\>') %>";
+  options.type = "danger";
+<% else %>
+  options.title = "Game Successfully Created";
+  options.message = "<%=raw @game.errors.values.join('<br\>') %>";
+  options.type = "success";
+  $('.modal').modal('hide');
+  $('#games').append("<%= j(render @game) %>");
+<% end %>
+
+notifyUser(options);
