@@ -4,8 +4,12 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable, :timeoutable, :timeout_in => 5.minutes
 
+  has_many :players
+  has_many :games, through: :players
+
+
   def not_in_game?(game)
-    true
+    self.games.where(id: game.id).first
   end
 
 end

@@ -1,0 +1,14 @@
+var options = {};
+
+<% if @schema.errors.any? %>
+  options.title = "Error Joining Game";
+  options.message = "<%=raw @schema.errors.map { |k,v| "#{k.to_s.capitalize} #{v.join(",")}" }.join("<br\>") %>";
+  options.type = "danger";
+<% else %>
+  options.title = "Player joined!";
+  options.message = "";
+  options.type = "success";
+  $('.modal').modal('hide');
+<% end %>
+
+notifyUser(options);

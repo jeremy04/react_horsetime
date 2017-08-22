@@ -25,6 +25,7 @@ gem 'devise'
 gem 'devise-bootstrapped', git: 'https://github.com/king601/devise-bootstrapped.git'
 gem 'responders'
 gem 'pundit'
+gem 'dry-validation'
 
 gem 'jbuilder', '~> 2.5'
 # Use Redis adapter to run Action Cable in production
