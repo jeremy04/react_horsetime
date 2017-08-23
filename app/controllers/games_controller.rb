@@ -2,6 +2,7 @@ class GamesController < ApplicationController
   before_action :authenticate!, except: :index
 
   respond_to :html, :js
+
   rescue_from ActiveRecord::RecordNotFound, with: :record_not_found 
 
   def new
@@ -11,16 +12,16 @@ class GamesController < ApplicationController
   end
 
   def create
-    activation_code = generate_activation_code
+    activation_code = Game.generate_activation_code
     matchup = JSON.parse(params['matchup']).with_indifferent_access
     @game = Game.new(room_code: activation_code, 
-                       expires_on: 10.hours.from_now(Time.zone.now),
-                       nhl_game: matchup[:gameId], 
-                       puck_drop_at: matchup[:time],
-                       home_team: matchup[:home_team],
-                       away_team: matchup[:away_team],
-                       pick_number: 1, 
-                       status: 'new')
+                     expires_on: 10.hours.from_now(Time.zone.now),
+                     nhl_game: matchup[:gameId], 
+                     puck_drop_at: matchup[:time],
+                     home_team: matchup[:home_team],
+                     away_team: matchup[:away_team],
+                     pick_number: 1, 
+                     status: 'new')
     @game.save
   end
 
@@ -40,7 +41,9 @@ class GamesController < ApplicationController
       game = Game.find(attrs[:game_id])
       ActiveRecord::Base.transaction do
         player = Player.new(game: game, user: current_user, name: attrs[:name])
-        player.save or raise ActiveRecord::Rollback
+        check_unique do
+          player.save or raise ActiveRecord::Rollback
+        end
         game.manager = player
         game.save or raise ActiveRecord::Rollback
       end
@@ -49,17 +52,20 @@ class GamesController < ApplicationController
 
   private
 
+  def check_unique
+    begin
+      yield
+    rescue ActiveRecord::RecordNotUnique
+      render file: "/shared/record_not_unique.js.erb"
+    end
+  end
+
   def join_params(params)
     JoinSchema.call(params) 
   end
 
-  def generate_activation_code(size=4)
-    charset = %w( 2 3 4 6 7 9 A C D E F G H J K M N P Q R T V W X Y Z )
-    (0...size).map { charset.to_a[SecureRandom.random_number(charset.size)] }.join
-  end
-  
   def record_not_found
-    render file: "/shared/not_found.js.erb"
+    render file: "/shared/record_not_found.js.erb"
   end
 
   def authenticate!

@@ -1,6 +1,11 @@
 class Game < ActiveRecord::Base
   has_many :players
-  
+
+  def self.generate_activation_code(size=4)
+    charset = %w( 2 3 4 6 7 9 A C D E F G H J K M N P Q R T V W X Y Z )
+    (0...size).map { charset.to_a[SecureRandom.random_number(charset.size)] }.join
+  end
+
   def matchup
     "#{home_team} vs. #{away_team}"
   end
@@ -21,11 +26,14 @@ class Game < ActiveRecord::Base
   end
 
   def self.list(user)
-    user_sql = sanitize_sql_array(['"users"."id" = ?', user.id])
+    user_eql = sanitize_sql_array(['"users"."id" = ?', user.id])
+    player_eql = sanitize_sql_array(['"players"."user_id" = ?', user.id])
     query = <<-SQL
-    LEFT OUTER JOIN "players" ON "players"."game_id" = "games"."id" 
-    LEFT OUTER JOIN "users" ON "users"."id" = "players"."user_id" AND #{user_sql}
+    LEFT OUTER JOIN "players" ON "players"."game_id" = "games"."id" AND #{player_eql} 
+    LEFT OUTER JOIN "users" ON "users"."id" = "players"."user_id" AND #{user_eql}
     SQL
-    self.joins(query).select('"games".*, "users"."id" as joined_game')
+    self.select('"games".*, "users"."id" as joined_game, "players"."name" as player_name')
+      .joins(query)
+      .order(:id)
   end
 end

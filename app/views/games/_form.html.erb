@@ -2,10 +2,10 @@
   <div id='item-form' class="col-md-12">
 
           <div class="form-group clearfix">
-            <div class='col-sm-6'>
+            <div class='col-sm-12'>
               <%= label_tag :matchup, "Matchup" %>
               
-              <%= select_tag 'matchup', options_for_select(@matchups), class: 'form-control' %>
+              <%= select_tag 'matchup', options_for_select(@matchups), class: 'form-control form-control-lg' %>
             </div>
           </div>
 

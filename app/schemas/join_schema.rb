@@ -9,7 +9,7 @@ JoinSchema = Dry::Validation.Schema do
         en: {
           errors: {
             duplicate_player_name?: 'is taken already',
-            found?: 'not found',
+            record_found?: 'not found',
           }
         })
     end
@@ -18,7 +18,7 @@ JoinSchema = Dry::Validation.Schema do
       player.where(game_id: game_id, name: name).first.nil?
     end
 
-    def found?(game_id)
+    def record_found?(game_id)
       begin
         game.find(game_id)
       rescue ActiveRecord::RecordNotFound
@@ -33,5 +33,5 @@ JoinSchema = Dry::Validation.Schema do
   end
 
   required(:name).filled(:str?)
-  required(:game_id).filled(:found?)
+  required(:game_id).filled(:record_found?)
 end
