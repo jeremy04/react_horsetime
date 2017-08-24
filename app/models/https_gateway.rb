@@ -1,4 +1,5 @@
 require 'uri'
+require 'net/https'
 
 class HttpsGateway
   def self.get(url: )
