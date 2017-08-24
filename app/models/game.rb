@@ -34,6 +34,6 @@ class Game < ActiveRecord::Base
     SQL
     self.select('"games".*, "users"."id" as joined_game, "players"."name" as player_name')
       .joins(query)
-      .order(:id)
+      .order(id: :desc)
   end
 end

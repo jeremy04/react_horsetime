@@ -9,7 +9,7 @@ var options = {};
   options.message = "<%=raw @game.errors.values.join('<br\>') %>";
   options.type = "success";
   $('.modal').modal('hide');
-  $('#games').append("<%= j(render @game) %>");
+  $('#games').prepend("<%= j(render @game) %>");
 <% end %>
 
 notifyUser(options);
