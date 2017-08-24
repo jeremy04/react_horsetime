@@ -15,16 +15,15 @@
   <body>
     
     <div class="main-wrapper">
-      <div class="app" id="app">
-          <%= render 'layouts/navigation' %>
-          <div id="notifications"></div>
-           <p id="notice"><%= notice %></p>
+      <%= render 'layouts/navigation' %>
+      <div id="notifications"></div>
+      <p id="notice"><%= notice %></p>
 
-          <article class="content">
-            <%= yield %>
-          </article>
-      </div>
+      <article class="content">
+        <%= yield %>
+      </article>
     </div>
+    
     <div id="modal-container"></div>
 
   </body>

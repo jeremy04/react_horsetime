@@ -1,8 +1,8 @@
-<div class="row" style="padding-bottom: 5px">
-  <div class="col-xs-2 col-sm-2 col-md-2"><%= game.room_code %></div>
-  <div class="col-xs-5 col-sm-6 col-md-5"><%= game.matchup %></div>
-  <div class="col-xs-2 col-sm-2 col-md-2"><%= game.status %></div>
-    <div class="col-xs-3 col-sm-2 col-md-3" style="padding-top: 2px">
+<div class="card border-primary mb-3">
+  <div class="card-body">
+    <span class="badge badge-pill badge-primary float-right m-2 "><%= game.status %></span>
+    <h5 class="card-title"><%= game.room_code %></h5>
+    <p class="card-text"><%= game.matchup %></p>
     <% if signed_in? %> 
         <% if game.respond_to?(:joined_game) && game.joined_game %> 
           <%= link_to "Enter Room", "" %> - <%= game.player_name %>
@@ -12,7 +12,5 @@
     <% else %>
       <%= link_to "Enter Guest Mode", "" %>
     <% end %>
-    </div>
+  </div>
 </div>
-
-
