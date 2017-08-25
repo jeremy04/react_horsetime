@@ -10,6 +10,7 @@ var options = {};
   options.type = "success";
   $('.modal').modal('hide');
   $('#games').prepend("<%= j(render @game) %>");
+  Android.showToast("Success created: <%= @game.room_code %>");
 <% end %>
 
 notifyUser(options);

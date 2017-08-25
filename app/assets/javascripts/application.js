@@ -16,4 +16,5 @@
 //= require popper.js/dist/umd/popper
 //= require bootstrap/dist/js/bootstrap
 //= require bootstrap-notify/bootstrap-notify
+//= require android_stub
 //= require_tree .
