@@ -68,11 +68,4 @@ class GamesController < ApplicationController
     render file: "/shared/record_not_found.js.erb"
   end
 
-  def authenticate!
-    return true if user_signed_in?
-    respond_to do |format|
-      format.js { render file: "/shared/unauthorized.js.erb" }
-      format.html { redirect_to root_path, :alert => "please login" }
-    end
-  end
 end

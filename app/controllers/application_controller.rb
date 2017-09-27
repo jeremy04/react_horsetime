@@ -41,4 +41,12 @@ class ApplicationController < ActionController::Base
     redirect_back_with_default_fallback turbolinks: :advance
   end
 
+  def authenticate!
+    return true if user_signed_in?
+    respond_to do |format|
+      format.js { render file: "/shared/unauthorized.js.erb" }
+      format.html { redirect_to root_path, :alert => "please login" }
+    end
+  end
+
 end
