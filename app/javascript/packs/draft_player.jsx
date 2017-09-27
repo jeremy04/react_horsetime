@@ -9,28 +9,31 @@ import _ from 'lodash'
 import { Provider, connect } from 'react-redux'
 
 // when user starts typing, call this function
-function myFilter(by) {  
+function myFilter(by) {
   return { type: 'SET_FILTER', by };
 }
 
-const initialState = {  
+const initialState = {
   filterBy: ""
 }
 
 // reducer catches it, and then transforms?
-function reducer(state = initialState, action) {  
+function reducer(state = initialState, action) {
   switch (action.type) {
     case 'SET_FILTER':
-      
       return Object.assign({}, state, {
         filterBy: action.by
       })
+    case 'FETCH_PLAYERS':
+      return action.payload
+    case 'ERROR_GENERATED':
+      return action
     default:
       return state
   }
 }
 
-const store = createStore(reducer);  
+const store = createStore(reducer);
 
 const mapStateToProps = (state) => {
   return {
@@ -46,7 +49,7 @@ const mapDispatchToProps = (dispatch) => {
 
 
 class List extends React.Component {
- 
+
   constructor(props) {
     super(props);
   }
@@ -74,7 +77,7 @@ class List extends React.Component {
 //
 // const List = ({ items, filterBy }) => {
 
-//   return ( 
+//   return (
 //     <ul>
 //       {
 //         items
@@ -87,9 +90,25 @@ class List extends React.Component {
 //   )
 // }
 
-class FilterList extends React.Component {  
+
+class PlayersContainer extends React.Component {
+
   render() {
-    
+    return (
+      <div className="col-lg-4">
+      <FilterList
+      players={this.props.players} />
+      </div>
+
+    )
+  }
+}
+
+
+class FilterList extends React.Component {
+
+  render() {
+
     const hockeyPlayers = ['Sidney Crosby', 'Evgeni Malkin', 'Phil Kessel', 'Kris Letang'];
     const { filterBy, updateFilter } = this.props;
 
@@ -106,10 +125,13 @@ class FilterList extends React.Component {
 FilterList = connect(mapStateToProps, mapDispatchToProps)(FilterList);
 
 document.addEventListener('DOMContentLoaded', () => {
+  var react_div = document.createElement('div');
+  react_div.className = "col-12";
+  
   ReactDOM.render(
     <Provider store={store}>
       <FilterList />
     </Provider>,
-    document.body.appendChild(document.createElement('div')),
+    document.getElementById("react").appendChild(react_div),
   )
 })
