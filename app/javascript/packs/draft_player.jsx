@@ -54,22 +54,21 @@ class List extends React.Component {
     super(props);
   }
 
+  renderNotFound() {
+    return (
+      <p> No Items Found </p>
+    )
+  }
+
   render() {
-
+    if (_.isEmpty(this.props.filterBy)) return null;
+ 
     let items = this.props.items
-            .filter(item =>  this.props.filterBy && this.props.filterBy.length > 1 &&  _.toLower(item).indexOf(_.toLower(this.props.filterBy)) >= 0 )
-            .map((item, i) => <li key={i}>{item}</li>)
-
-    if (_.isEmpty(this.props.filterBy)) {
-      return null;
-    }
-    else if(!_.isEmpty(items))
-    {
-      return(<ul> { items } </ul>)
-    }
-    else {
-      return(<p>No items found</p>)
-    }
+            .filter(item => this.props.filterBy && this.props.filterBy.length > 1 &&  _.toLower(item).indexOf(_.toLower(this.props.filterBy)) >= 0 )
+            .map((item, i) => <li key={i}>{item}</li>);
+    
+    if (!_.isEmpty(items)) return (<ul> { items } </ul>);
+    return this.renderNotFound();
   }
 }
 
