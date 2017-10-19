@@ -4,28 +4,144 @@
 
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { createStore } from 'redux'
+import { createStore, applyMiddleware, bindActionCreators } from 'redux'
 import _ from 'lodash'
 import { Provider, connect } from 'react-redux'
+import { createLogic, createLogicMiddleware } from 'redux-logic'
+import axios from 'axios'
 
-// when user starts typing, call this function
-function myFilter(by) {
-  return { type: 'SET_FILTER', by };
-}
+const LOAD_USERS = 'LOAD_USERS';
+const LOAD_USERS_FULFILLED = 'LOAD_USERS_FULFILLED';
+
+function loadUsers() { return { type: LOAD_USERS }; }
+function loadUsersFulfilled(users) { return { type: LOAD_USERS_FULFILLED, payload: users }; }
 
 const initialState = {
+  search_results: [],
+  top_list: [],
+  fetchStatus: "",
+  loading: false,
   filterBy: ""
 }
+
+const SEARCH_USERS = 'SEARCH_USERS';
+const SEARCH_USERS_CANCEL = 'SEARCH_USERS_CANCEL';
+const SEARCH_USERS_FULFILLED = 'SEARCH_USERS_FULFILLED';
+const SEARCH_USERS_REJECTED = 'SEARCH_USERS_REJECTED';
+
+function searchUsers(by) { return { type: SEARCH_USERS, by }; }
+function searchUsersCancel() { return { type: SEARCH_USERS_CANCEL }; }
+
+function searchUsersFulfilled(users) {
+  return { type: SEARCH_USERS_FULFILLED, payload: users };
+}
+
+function searchUsersRejected(err) {
+  return { type: SEARCH_USERS_REJECTED, payload: err, error: true };
+}
+
+const loadUsersLogic = createLogic({
+  type: LOAD_USERS,
+  latest: true,
+  async process({ httpClient }, dispatch, done) {
+    try {
+      // the delay query param adds arbitrary delay to the response
+      const users =
+        await httpClient.get('https://reqres.in/api/users')
+          .then(resp => resp.data.data);
+          dispatch(loadUsersFulfilled(users));
+        } catch(err) {
+          console.error(err);
+          dispatch(searchUsersRejected(err));
+        }
+    done();
+  }
+})
+
+const usersFetchLogic = createLogic({
+  type: [SEARCH_USERS],
+  debounce: 500,
+  cancelType: SEARCH_USERS_CANCEL,
+  latest: true, // take latest only
+  
+  validate({ getState, action }, allow, reject) {
+    if (action.by) {
+      allow(action);
+    } else { // empty request, silently reject
+      console.log("Empty request for action");
+      reject();
+    }
+  },
+  async process({ httpClient, getState, action }, dispatch, done) {
+      try {
+        // the delay query param adds arbitrary delay to the response
+        console.log(action.by);
+
+        const users =
+          await httpClient.get('https://reqres.in/api/users')
+            .then(resp => resp.data.data);
+        dispatch(searchUsersFulfilled(users));
+      } catch(err) {
+        console.error(err);
+        dispatch(searchUsersRejected(err));
+      }
+      done();
+  }
+});
+
+
+const deps = {
+  httpClient: axios
+};
+const arrLogic = [loadUsersLogic, usersFetchLogic];
+const logicMiddleware = createLogicMiddleware(arrLogic, deps);
+
 
 // reducer catches it, and then transforms?
 function reducer(state = initialState, action) {
   switch (action.type) {
-    case 'SET_FILTER':
-      return Object.assign({}, state, {
-        filterBy: action.by
-      })
-    case 'FETCH_PLAYERS':
-      return action.payload
+    case LOAD_USERS:
+      return {
+        ...state,
+        fetchStatus: "Loading Top List... ",
+        top_list: [],
+        loading: true,
+      };
+    case LOAD_USERS_FULFILLED:
+      return {
+        ...state,
+        top_list: action.payload,
+        loading: false,
+        fetchStatus: "",
+      }
+    case SEARCH_USERS:
+      return {
+        ...state,
+        fetchStatus: `fetching... ${(new Date()).toLocaleString()}`,
+        filterBy: action.by,
+        search_results: [],
+        loading: true,
+      };
+    case SEARCH_USERS_FULFILLED:
+      return {
+        ...state,
+        search_results: action.payload,
+        loading: false,
+        fetchStatus: `Results from ${(new Date()).toLocaleString()}`
+      };
+    case SEARCH_USERS_REJECTED:
+      return {
+        ...state,
+        loading: false,
+        fetchStatus: `errored: ${action.payload}`
+      };
+    case SEARCH_USERS_CANCEL:
+      return {
+        ...state,
+        loading: false,
+        fetchStatus: 'user cancelled'
+      };    
+
     case 'ERROR_GENERATED':
       return action
     default:
@@ -33,22 +149,30 @@ function reducer(state = initialState, action) {
   }
 }
 
-const store = createStore(reducer);
+const store = createStore(reducer, initialState, applyMiddleware(logicMiddleware));
 
-const mapStateToProps = (state) => {
-  return {
-    filterBy: state.filterBy
-  }
+function mapDispatchToProps(dispatch) {  
+  return bindActionCreators({
+    Search: (ev) => searchUsers(ev.target.value),
+    searchUsersCancel,
+    loadUsers
+  }, dispatch);
 }
 
-const mapDispatchToProps = (dispatch) => {
-  return {
-    updateFilter: (ev) => dispatch(myFilter(ev.target.value))
+class TopList extends React.Component {
+ 
+  constructor(props) {
+    super(props);
   }
+  
+  render() {
+    let items = this.props.items.map((item,i) => <li key={i}>{item}</li>);
+    return (<ul> { items } </ul>);
+  }
+ 
 }
 
-
-class List extends React.Component {
+class SearchResults extends React.Component {
 
   constructor(props) {
     super(props);
@@ -90,38 +214,47 @@ class List extends React.Component {
 // }
 
 
-class PlayersContainer extends React.Component {
+class AsyncApp extends React.Component {
 
-  render() {
-    return (
-      <div className="col-lg-4">
-      <FilterList
-      players={this.props.players} />
-      </div>
-
-    )
+  constructor(props) {
+    super(props);
   }
-}
 
-
-class FilterList extends React.Component {
+  componentDidMount() {
+    this.props.loadUsers();
+  }
 
   render() {
 
-    const hockeyPlayers = ['Sidney Crosby', 'Evgeni Malkin', 'Phil Kessel', 'Kris Letang'];
-    const { filterBy, updateFilter } = this.props;
+    const { filterBy, Search, searchResults, fetchStatus, loading, topList } = this.props;
 
-    // simple input box and our List component
-    return (
+    let html = null;
+    let first_names = searchResults.map(user => ( user.first_name ));
+    let top_list_first_names = _.sortBy(topList.map(user => ( user.first_name )));
+
+    html =  
       <div>
-        <input type="text" onChange={updateFilter}/>
-        <List items={hockeyPlayers} filterBy={filterBy} />
+        <input autoFocus="true" onChange={Search}/>
+        <SearchResults items={first_names} filterBy={filterBy} />
+        <TopList items={top_list_first_names} />
+        <p>{fetchStatus}</p>
       </div>
-    )
+
+      return (html)
   }
 }
 
-FilterList = connect(mapStateToProps, mapDispatchToProps)(FilterList);
+const ConnectedApp = connect(
+  state => ({
+    filterBy: state.filterBy,
+    searchResults: state.search_results,
+    topList: state.top_list, 
+    fetchStatus: state.fetchStatus,
+    loading: state.loading
+  }),
+  mapDispatchToProps
+  
+)(AsyncApp);
 
 document.addEventListener('DOMContentLoaded', () => {
   var react_div = document.createElement('div');
@@ -129,7 +262,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   ReactDOM.render(
     <Provider store={store}>
-      <FilterList />
+      <ConnectedApp />
     </Provider>,
     document.getElementById("react").appendChild(react_div),
   )
