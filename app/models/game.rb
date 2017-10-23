@@ -18,6 +18,21 @@ class Game < ActiveRecord::Base
     end
   end
 
+  def skaters
+    Rails.cache.fetch("#{cache_key}/skaters", expires_in: 5.hours) do
+      Skater.new.season_stats(self)
+    end
+  end
+
+  def faceoff_stats
+    { 
+      "date": self.puck_drop_at.to_date.to_s, 
+      "gameID": self.nhl_game, 
+      "awayTeam": self.away_team, 
+      "homeTeam": self.home_team
+    }.with_indifferent_access
+  end
+
   # Empty manager not allowed
   def manager=(player)
     if player.try(:id)

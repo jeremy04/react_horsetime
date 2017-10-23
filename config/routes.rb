@@ -11,6 +11,13 @@ Rails.application.routes.draw do
     post 'join'
   end
 
+  namespace :api, constraints: { format: 'json' } do
+    namespace :v1 do
+      get 'rooms/:room_code/skaters/season_stats', to: 'skaters#season_stats'
+    end
+
+  end
+ 
   root 'games#index'
 
 end
