@@ -22,16 +22,24 @@ const initialState = {
   top_list: [],
   fetchStatus: "",
   loading: false,
-  filterBy: ""
+  filterBy: "",
+  skater: "",
 }
 
 const SEARCH_USERS = 'SEARCH_USERS';
 const SEARCH_USERS_CANCEL = 'SEARCH_USERS_CANCEL';
 const SEARCH_USERS_FULFILLED = 'SEARCH_USERS_FULFILLED';
 const SEARCH_USERS_REJECTED = 'SEARCH_USERS_REJECTED';
+const SELECT_SKATER = 'SELECT_SKATER';
+const CLEAR_SEARCH = 'CLEAR_SEARCH';
 
 function searchUsers(by) { return { type: SEARCH_USERS, by }; }
 function searchUsersCancel() { return { type: SEARCH_USERS_CANCEL }; }
+
+function selectSkater(choice) { 
+  return { type: SELECT_SKATER, choice }; }
+
+function clearSearch() { return { type: CLEAR_SEARCH }; }
 
 function searchUsersFulfilled(users) {
   return { type: SEARCH_USERS_FULFILLED, payload: users };
@@ -70,9 +78,19 @@ const loadUsersLogic = createLogic({
   }
 })
 
+/*
+ * const selectSkaterLogic = createLogic({ 
+  type: SELECT_SKATER, 
+  process({ httpClient, getState, action}, dispatch, done) {
+    dispatch(selectSkater(action.skater) );  
+    done();
+  }
+});
+*/
+
 const usersFetchLogic = createLogic({
   type: [SEARCH_USERS],
-  debounce: 500,
+  //debounce: 250,
   cancelType: SEARCH_USERS_CANCEL,
   latest: true, // take latest only
   
@@ -81,17 +99,28 @@ const usersFetchLogic = createLogic({
       allow(action);
     } else { // empty request, silently reject
       console.log("Empty request for action");
-      reject();
+      reject(clearSearch());
     }
   },
   async process({ httpClient, getState, action }, dispatch, done) {
       try {
         // the delay query param adds arbitrary delay to the response
-        console.log(action.by);
+        //console.log(action.by);
+        const roomCode = function() {
+          const uri = location.hash.slice(1);
+          return uri;
+        };
+
+        let headers = {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'        
+          }
+        };
 
         const users =
-          await httpClient.get('https://reqres.in/api/users')
-            .then(resp => resp.data.data);
+          await httpClient.get(`/api/v1/rooms/${roomCode()}/skaters/season_stats`, headers)
+            .then(resp => resp.data.skaters);
         dispatch(searchUsersFulfilled(users));
       } catch(err) {
         console.error(err);
@@ -120,7 +149,6 @@ function reducer(state = initialState, action) {
         loading: true,
       };
     case LOAD_USERS_FULFILLED:
-      console.log(action.payload);
       return {
         ...state,
         top_list: action.payload,
@@ -132,9 +160,24 @@ function reducer(state = initialState, action) {
         ...state,
         fetchStatus: `fetching... ${(new Date()).toLocaleString()}`,
         filterBy: action.by,
+        choice: "",
         search_results: [],
         loading: true,
       };
+    case SELECT_SKATER:
+      return {
+        ...state,
+        choice: _.titleize(action.choice),
+        search_results: []
+      }
+    case CLEAR_SEARCH:
+       return {
+         ...state,
+         choice: null,
+         search_results: [],
+         loading: false,
+         fetchStatus: "Type a skater"
+       }
     case SEARCH_USERS_FULFILLED:
       return {
         ...state,
@@ -167,6 +210,8 @@ const store = createStore(reducer, initialState, applyMiddleware(logicMiddleware
 function mapDispatchToProps(dispatch) {  
   return bindActionCreators({
     Search: (ev) => searchUsers(ev.target.value),
+    SelectSkater: (item) => selectSkater(item),
+    clearSearch,
     searchUsersCancel,
     loadUsers
   }, dispatch);
@@ -210,22 +255,16 @@ class SearchResults extends React.Component {
   constructor(props) {
     super(props);
   }
-
-  renderNotFound() {
-    return (
-      <p> No Items Found </p>
-    )
-  }
-
+ 
   render() {
     if (_.isEmpty(this.props.filterBy)) return null;
  
     let items = this.props.items
             .filter(item => this.props.filterBy && this.props.filterBy.length > 1 &&  _.toLower(item).indexOf(_.toLower(this.props.filterBy)) >= 0 )
-            .map((item, i) => <li key={i}>{item}</li>);
-    
-    if (!_.isEmpty(items)) return (<ul> { items } </ul>);
-    return this.renderNotFound();
+            .map((item, i) => <div className="row border-top-0 border-primary" key={i}><a onClick={() => { this.props.onHandleSelect(item) } } className="btn btn-default option-list-item">{_.titleize(item)}</a></div>);
+   
+    if (!_.isEmpty(this.props.items)) return (<div> {items} </div>);
+    return null;
   }
 }
 
@@ -259,17 +298,22 @@ class AsyncApp extends React.Component {
 
   render() {
 
-    const { filterBy, Search, searchResults, fetchStatus, loading, topList } = this.props;
+    const { filterBy, Search, searchResults, fetchStatus, loading, topList, SelectSkater, choice, clearSearch } = this.props;
+
 
     let html = null;
-    let first_names = searchResults.map(user => ( user.first_name ));
-    let top_list_first_names = _.sortBy(topList, user => -(user.points) );
+    let skater_names = searchResults.map(user => ( user.name ));
+    let top_list = _.sortBy(topList, user => -(user.points) );
 
+    // TODO move this logic out of render
+    let inputProps = !(choice === "") ? { value: choice } : {}
+    inputProps = choice === null ? { value: "" } : inputProps
+    
     html =  
-      <div>
-        <input autoFocus="true" onChange={Search}/>
-        <SearchResults items={first_names} filterBy={filterBy} />
-        <TopList items={top_list_first_names} />
+      <div className="form-group col-sm-4">
+        <input {...inputProps} type="text"  autoFocus="true" onChange={Search}/>
+        <SearchResults items={skater_names} onHandleSelect={SelectSkater} filterBy={filterBy} />
+        <TopList items={top_list} />
         <p>{fetchStatus}</p>
       </div>
 
@@ -283,7 +327,8 @@ const ConnectedApp = connect(
     searchResults: state.search_results,
     topList: state.top_list, 
     fetchStatus: state.fetchStatus,
-    loading: state.loading
+    loading: state.loading,
+    choice: state.choice,
   }),
   mapDispatchToProps
   
