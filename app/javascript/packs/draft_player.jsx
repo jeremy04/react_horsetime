@@ -6,6 +6,7 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import { createStore, applyMiddleware, bindActionCreators } from 'redux'
 import _ from 'lodash'
+_.mixin(require("lodash-inflection"));
 import { Provider, connect } from 'react-redux'
 import { createLogic, createLogicMiddleware } from 'redux-logic'
 import axios from 'axios'
@@ -43,12 +44,23 @@ function searchUsersRejected(err) {
 const loadUsersLogic = createLogic({
   type: LOAD_USERS,
   latest: true,
-  async process({ httpClient }, dispatch, done) {
+  async process({ httpClient, getState, action }, dispatch, done) {
     try {
       // the delay query param adds arbitrary delay to the response
+      const roomCode = function() {
+        const uri = location.hash.slice(1);
+        return uri;
+      };
+
+      let headers = {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'        
+        }
+      };
       const users =
-        await httpClient.get('https://reqres.in/api/users')
-          .then(resp => resp.data.data);
+        await httpClient.get(`/api/v1/rooms/${roomCode()}/skaters/season_stats`, headers)
+          .then(resp => resp.data.skaters);
           dispatch(loadUsersFulfilled(users));
         } catch(err) {
           console.error(err);
@@ -108,6 +120,7 @@ function reducer(state = initialState, action) {
         loading: true,
       };
     case LOAD_USERS_FULFILLED:
+      console.log(action.payload);
       return {
         ...state,
         top_list: action.payload,
@@ -166,10 +179,30 @@ class TopList extends React.Component {
   }
   
   render() {
-    let items = this.props.items.map((item,i) => <li key={i}>{item}</li>);
-    return (<ul> { items } </ul>);
+    let home_skaters = _.filter(this.props.items, item => (item.location === "horse_team"))
+    let away_skaters = _.filter(this.props.items, item => (item.location === "other_team"))
+    
+    let home_team = home_skaters[0] || { "team": "" }
+    let away_team = away_skaters[0] || { "team": "" }
+    
+    let top_home = home_skaters
+      .map((item,i) => <li key={i}>{_.titleize(item.name)} G: {item.goals} A: {item.assists} </li>)
+      .slice(0,5);
+    
+    let top_away = away_skaters
+      .map((item,i) => <li key={i}>{_.titleize(item.name)} G: {item.goals} A: {item.assists} </li>)
+      .slice(0,5);
+    
+    return (
+            <div>
+              <p>{ home_team.team }</p>
+              <ul> { top_home } </ul>
+              <p>{ away_team.team }</p>
+              <ul>{ top_away } </ul>
+            </div>
+    );
   }
- 
+
 }
 
 class SearchResults extends React.Component {
@@ -230,7 +263,7 @@ class AsyncApp extends React.Component {
 
     let html = null;
     let first_names = searchResults.map(user => ( user.first_name ));
-    let top_list_first_names = _.sortBy(topList.map(user => ( user.first_name )));
+    let top_list_first_names = _.sortBy(topList, user => -(user.points) );
 
     html =  
       <div>
