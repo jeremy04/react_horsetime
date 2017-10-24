@@ -1,7 +1,3 @@
-// Run this example by adding <%= javascript_pack_tag 'hello_react' %> to the head of your layout file,
-// like app/views/layouts/application.html.erb. All it does is render <div>Hello React</div> at the bottom
-// of the page.
-
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { createStore, applyMiddleware, bindActionCreators } from 'redux'
@@ -90,8 +86,6 @@ const usersFetchLogic = createLogic({
   },
   async process({ httpClient, getState, action }, dispatch, done) {
       try {
-        // the delay query param adds arbitrary delay to the response
-        //console.log(action.by);
         const roomCode = function() {
           const uri = location.hash.slice(1);
           return uri;
@@ -162,6 +156,7 @@ function reducer(state = initialState, action) {
          choice: "",
          search_results: [],
          loading: false,
+         fetchStatus: "",
        }
     case SEARCH_USERS_FULFILLED:
       return {
@@ -261,41 +256,27 @@ class SearchResults extends React.Component {
   }
 
   render() {
-    if (_.isEmpty(this.props.filterBy)) return null;
  
-    let items = this.props.items
-            .filter(item => 
-                    this.props.filterBy && 
-                    this.props.filterBy.length > 2 &&  
-                    _.toLower(item).indexOf(_.toLower(this.props.filterBy)) >= 0 
+   const { filterBy, items, onHandleSelect } = this.props;
+
+   if (_.isEmpty(filterBy)) return null;
+ 
+    let filtered_items = 
+      items.filter(item => 
+              filterBy && 
+              filterBy.length > 2 &&  
+               _.toLower(item).indexOf(_.toLower(filterBy)) >= 0 
             )
             .map((item, i) => 
-              <div className="dropdown-item" key={i} onClick={() => { this.props.onHandleSelect(item) } }>
+              <div className="dropdown-item" key={i} onClick={() => { onHandleSelect(item) } }>
                   {_.titleize(item)}
               </div>
             );
-    if (!_.isEmpty(items)) return (<div ref={this.setWrapperRef} className="dropdown-menu dropdown-menu-left show"> {items} </div>);
+
+    if (!_.isEmpty(filtered_items)) return (<div ref={this.setWrapperRef} className="dropdown-menu show"> {filtered_items} </div>);
     return null;
   }
 }
-
-// Short hand way:
-//
-// const List = ({ items, filterBy }) => {
-
-//   return (
-//     <ul>
-//       {
-//         items
-//           .filter(item =>  filterBy && _.startsWith(_.lowerCase(item) , _.lowerCase(filterBy) ) )
-//           .map((item, i) => <li key={i}>{item}</li>)
-
-//       }
-//     </ul>
-
-//   )
-// }
-
 
 class AsyncApp extends React.Component {
 
