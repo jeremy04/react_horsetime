@@ -23,18 +23,16 @@ const initialState = {
   fetchStatus: "",
   loading: false,
   filterBy: "",
-  skater: "",
+  choice: "",
 }
 
 const SEARCH_USERS = 'SEARCH_USERS';
-const SEARCH_USERS_CANCEL = 'SEARCH_USERS_CANCEL';
 const SEARCH_USERS_FULFILLED = 'SEARCH_USERS_FULFILLED';
 const SEARCH_USERS_REJECTED = 'SEARCH_USERS_REJECTED';
 const SELECT_SKATER = 'SELECT_SKATER';
 const CLEAR_SEARCH = 'CLEAR_SEARCH';
 
 function searchUsers(by) { return { type: SEARCH_USERS, by }; }
-function searchUsersCancel() { return { type: SEARCH_USERS_CANCEL }; }
 
 function selectSkater(choice) { 
   return { type: SELECT_SKATER, choice }; }
@@ -54,7 +52,6 @@ const loadUsersLogic = createLogic({
   latest: true,
   async process({ httpClient, getState, action }, dispatch, done) {
     try {
-      // the delay query param adds arbitrary delay to the response
       const roomCode = function() {
         const uri = location.hash.slice(1);
         return uri;
@@ -78,20 +75,9 @@ const loadUsersLogic = createLogic({
   }
 })
 
-/*
- * const selectSkaterLogic = createLogic({ 
-  type: SELECT_SKATER, 
-  process({ httpClient, getState, action}, dispatch, done) {
-    dispatch(selectSkater(action.skater) );  
-    done();
-  }
-});
-*/
-
 const usersFetchLogic = createLogic({
   type: [SEARCH_USERS],
-  //debounce: 250,
-  cancelType: SEARCH_USERS_CANCEL,
+ // debounce: 250,
   latest: true, // take latest only
   
   validate({ getState, action }, allow, reject) {
@@ -160,7 +146,7 @@ function reducer(state = initialState, action) {
         ...state,
         fetchStatus: `fetching... ${(new Date()).toLocaleString()}`,
         filterBy: action.by,
-        choice: "",
+        choice: action.by,
         search_results: [],
         loading: true,
       };
@@ -173,10 +159,9 @@ function reducer(state = initialState, action) {
     case CLEAR_SEARCH:
        return {
          ...state,
-         choice: null,
+         choice: "",
          search_results: [],
          loading: false,
-         fetchStatus: "Type a skater"
        }
     case SEARCH_USERS_FULFILLED:
       return {
@@ -191,12 +176,6 @@ function reducer(state = initialState, action) {
         loading: false,
         fetchStatus: `errored: ${action.payload}`
       };
-    case SEARCH_USERS_CANCEL:
-      return {
-        ...state,
-        loading: false,
-        fetchStatus: 'user cancelled'
-      };    
 
     case 'ERROR_GENERATED':
       return action
@@ -210,9 +189,8 @@ const store = createStore(reducer, initialState, applyMiddleware(logicMiddleware
 function mapDispatchToProps(dispatch) {  
   return bindActionCreators({
     Search: (ev) => searchUsers(ev.target.value),
-    SelectSkater: (item) => selectSkater(item),
+    SelectSkater: (skater) => selectSkater(skater),
     clearSearch,
-    searchUsersCancel,
     loadUsers
   }, dispatch);
 }
@@ -254,16 +232,49 @@ class SearchResults extends React.Component {
 
   constructor(props) {
     super(props);
+    this.setWrapperRef = this.setWrapperRef.bind(this);           
+    this.handleClickOutside = this.handleClickOutside.bind(this);
   }
- 
+
+  componentDidMount() {
+    document.addEventListener('mousedown', this.handleClickOutside);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('mousedown', this.handleClickOutside);
+  }
+
+  /**
+   * Set the wrapper ref
+   */
+  setWrapperRef(node) {
+    this.wrapperRef = node;
+  }
+
+  /**
+   * Clear search if clicked on outside of element
+   */
+  handleClickOutside(event) {
+    if (this.wrapperRef && !this.wrapperRef.contains(event.target)) {
+      this.props.clearSearch()
+    }
+  }
+
   render() {
     if (_.isEmpty(this.props.filterBy)) return null;
  
     let items = this.props.items
-            .filter(item => this.props.filterBy && this.props.filterBy.length > 1 &&  _.toLower(item).indexOf(_.toLower(this.props.filterBy)) >= 0 )
-            .map((item, i) => <div className="row border-top-0 border-primary" key={i}><a onClick={() => { this.props.onHandleSelect(item) } } className="btn btn-default option-list-item">{_.titleize(item)}</a></div>);
-   
-    if (!_.isEmpty(this.props.items)) return (<div> {items} </div>);
+            .filter(item => 
+                    this.props.filterBy && 
+                    this.props.filterBy.length > 2 &&  
+                    _.toLower(item).indexOf(_.toLower(this.props.filterBy)) >= 0 
+            )
+            .map((item, i) => 
+              <div className="dropdown-item" key={i} onClick={() => { this.props.onHandleSelect(item) } }>
+                  {_.titleize(item)}
+              </div>
+            );
+    if (!_.isEmpty(items)) return (<div ref={this.setWrapperRef} className="dropdown-menu dropdown-menu-left show"> {items} </div>);
     return null;
   }
 }
@@ -300,23 +311,38 @@ class AsyncApp extends React.Component {
 
     const { filterBy, Search, searchResults, fetchStatus, loading, topList, SelectSkater, choice, clearSearch } = this.props;
 
-
     let html = null;
     let skater_names = searchResults.map(user => ( user.name ));
     let top_list = _.sortBy(topList, user => -(user.points) );
 
-    // TODO move this logic out of render
-    let inputProps = !(choice === "") ? { value: choice } : {}
-    inputProps = choice === null ? { value: "" } : inputProps
-    
-    html =  
-      <div className="form-group col-sm-4">
-        <input {...inputProps} type="text"  autoFocus="true" onChange={Search}/>
-        <SearchResults items={skater_names} onHandleSelect={SelectSkater} filterBy={filterBy} />
-        <TopList items={top_list} />
-        <p>{fetchStatus}</p>
+    html =
+      <div className="container">
+        <div className="row">
+          
+          <div className="col-sm-3">
+            <div className="input-group">
+              
+              <div className="input-group-btn">
+                <SearchResults items={skater_names} 
+                                onHandleSelect={SelectSkater} 
+                                clearSearch={clearSearch} 
+                                filterBy={filterBy} />
+              </div> 
+                <input className="form-control" value={choice} type="text"  autoFocus="true" onChange={Search}/>
+                 <button type="button" className="btn btn-primary btn-sm">
+                  Draft
+                </button>
+          </div>
+            
+          </div>
+          
+          <div className="col-sm-9">
+            <TopList items={top_list} />
+            <p>{fetchStatus}</p>
+          </div>
+        
+        </div>
       </div>
-
       return (html)
   }
 }
