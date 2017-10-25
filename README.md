@@ -1,9 +1,17 @@
 # README
 
-How to run:
+How to run locally:
 
     rbenv install (optional)
     gem install bundler
-    bundler install
-    ./bin/webpack-dev-server --hot --host 127.0.0.1
+    bundle install
+    export DATABASE_URL="postgresql://username:password@localhost/database"
     rails s
+
+How to run dockerized:
+
+    Install Docker for Mac
+    docker build .
+    docker-compose exec web bundle exec rake db:migrate
+    docker-compose exec web bundle exec rake db:seed
+    docker-compose up
