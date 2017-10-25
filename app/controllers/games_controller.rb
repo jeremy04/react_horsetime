@@ -3,24 +3,24 @@ class GamesController < ApplicationController
 
   respond_to :html, :js
 
-  rescue_from ActiveRecord::RecordNotFound, with: :record_not_found 
+  rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
 
   def new
     @game = Game.new
-    available_games = AvailableGames.new(date: '2017-10-11').matchups
+    available_games = AvailableGames.new(date: Date.today.to_s).matchups
     @matchups = available_games.map { |hsh| ["#{hsh[:home_team]} vs. #{hsh[:away_team]}", hsh.to_json] }
   end
 
   def create
     activation_code = Game.generate_activation_code
     matchup = JSON.parse(params['matchup']).with_indifferent_access
-    @game = Game.new(room_code: activation_code, 
+    @game = Game.new(room_code: activation_code,
                      expires_on: 10.hours.from_now(Time.zone.now),
-                     nhl_game: matchup[:gameId], 
+                     nhl_game: matchup[:gameId],
                      puck_drop_at: matchup[:time],
                      home_team: matchup[:home_team],
                      away_team: matchup[:away_team],
-                     pick_number: 1, 
+                     pick_number: 1,
                      status: 'new')
     @game.save
   end
@@ -61,7 +61,7 @@ class GamesController < ApplicationController
   end
 
   def join_params(params)
-    JoinSchema.call(params) 
+    JoinSchema.call(params)
   end
 
   def record_not_found

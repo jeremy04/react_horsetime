@@ -10,13 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170822234817) do
+ActiveRecord::Schema.define(version: 20171025184253) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "citext"
 
-  create_table "games", id: :serial, force: :cascade do |t|
+  create_table "games", force: :cascade do |t|
     t.citext "room_code", null: false
     t.datetime "expires_on"
     t.integer "pick_number"
@@ -29,19 +29,19 @@ ActiveRecord::Schema.define(version: 20170822234817) do
     t.index ["player_id"], name: "index_games_on_player_id"
   end
 
-  create_table "picks", id: :serial, force: :cascade do |t|
-    t.integer "player_id", null: false
-    t.integer "game_id", null: false
+  create_table "picks", force: :cascade do |t|
+    t.bigint "player_id", null: false
+    t.bigint "game_id", null: false
     t.integer "pick_number"
     t.datetime "expires_on"
     t.index ["game_id"], name: "index_picks_on_game_id"
     t.index ["player_id"], name: "index_picks_on_player_id"
   end
 
-  create_table "players", id: :serial, force: :cascade do |t|
+  create_table "players", force: :cascade do |t|
     t.string "name"
     t.jsonb "horses", default: {}, null: false
-    t.integer "game_id", null: false
+    t.bigint "game_id", null: false
     t.bigint "user_id"
     t.index ["game_id"], name: "index_players_on_game_id"
     t.index ["horses"], name: "index_players_on_horses", using: :gin
@@ -67,7 +67,6 @@ ActiveRecord::Schema.define(version: 20170822234817) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
-  add_foreign_key "games", "players"
   add_foreign_key "picks", "games"
   add_foreign_key "picks", "players"
   add_foreign_key "players", "games"

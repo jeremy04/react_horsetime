@@ -23,7 +23,8 @@ gem 'turbolinks', '~> 5'
 gem 'user_agent_parser'
 
 gem 'devise'
-gem 'devise-bootstrapped', git: 'https://github.com/king601/devise-bootstrapped.git'
+# Only used once
+#gem 'devise-bootstrapped', git: 'https://github.com/king601/devise-bootstrapped.git'
 gem 'responders'
 gem 'pundit'
 gem 'dry-validation'
@@ -58,4 +59,4 @@ group :development do
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
-gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
+gem 'tzinfo-data'
