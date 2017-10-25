@@ -19,9 +19,14 @@ class Game < ActiveRecord::Base
   end
 
   def skaters
-    Rails.cache.fetch("#{cache_key}/skaters", expires_in: 5.hours) do
+    drafted = self.players.map do |player| 
+      player.horses["horse_team"].to_a + player.horses["other_team"].to_a 
+    end.compact.flatten.map(&:downcase)
+
+    season_stats = Rails.cache.fetch("#{cache_key}/skaters", expires_in: 5.hours) do
       Skater.new.season_stats(self)
     end
+    season_stats.reject { |skater| drafted.include?(skater[:name]) }
   end
 
   def faceoff_stats

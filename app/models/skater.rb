@@ -26,7 +26,7 @@ class Skater
         ["points", PlayerStats.new(skater).points],
         ["team", team_info[:home_team_name] ],
         ["location", "horse_team"]
-      ].to_h
+      ].to_h.with_indifferent_access
     end
 
     away_skaters = away_skaters.map do |skater|
@@ -37,7 +37,7 @@ class Skater
         ["points", PlayerStats.new(skater).points],
         ["team", team_info[:away_team_name] ],
         ["location", "other_team"]
-      ].to_h
+      ].to_h.with_indifferent_access
     end
 
     home_skaters = home_skaters.map { |skater| skater.merge('name' => normalize(skater['name']) ) }
