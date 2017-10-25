@@ -342,13 +342,16 @@ const ConnectedApp = connect(
 )(AsyncApp);
 
 document.addEventListener('DOMContentLoaded', () => {
-  var react_div = document.createElement('div');
-  react_div.className = "col-12";
-  
-  ReactDOM.render(
-    <Provider store={store}>
+
+  if (!_.isEmpty(location.hash.slice(1))) {
+    var react_div = document.createElement('div');
+    react_div.className = "col-12";
+
+    ReactDOM.render(
+      <Provider store={store}>
       <ConnectedApp />
-    </Provider>,
-    document.getElementById("react").appendChild(react_div),
-  )
+      </Provider>,
+      document.getElementById("react").appendChild(react_div),
+    )
+  }
 })
