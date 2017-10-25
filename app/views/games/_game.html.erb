@@ -10,7 +10,7 @@
            <%= link_to "Join", game_nickname_path(game), remote: true, id: "join-btn", class: "btn btn-primary" %>
         <% end %>
     <% else %>
-      <%= link_to "Enter Guest Mode", "" %>
+      <%= link_to "Enter Guest Mode", root_path + "##{game.room_code}", :onclick => 'location.reload()' %>
     <% end %>
   </div>
 </div>
