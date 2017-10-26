@@ -17,7 +17,12 @@ class AvailableGames
       teams = row.css(".narrow-matchup__team").children
       home_team = teams[1].attributes["title"].value
       away_team = teams[0].attributes["title"].value
-      time = Time.parse(row.css(".matchup-time-or-result").first.text.strip).utc
+      time = row.css(".matchup-time-or-result").first.text.strip
+      begin
+        time = Time.parse(time).utc
+      rescue ArgumentError
+        time = Date.today.beginning_of_day.utc
+      end
       hsh[:time] = time
       hsh[:home_team] = home_team
       hsh[:away_team] = away_team
