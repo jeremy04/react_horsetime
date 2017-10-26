@@ -5,7 +5,7 @@
     <p class="card-text"><%= game.matchup %></p>
     <% if signed_in? %> 
         <% if game.respond_to?(:joined_game) && game.joined_game %> 
-          <%= link_to "Enter Room", "" %> - <%= game.player_name %>
+          <%= link_to "Enter Room", root_path + "##{game.room_code}", :onclick => 'location.reload()' %> - <%= game.player_name %>
         <% else %>
            <%= link_to "Join", game_nickname_path(game), remote: true, id: "join-btn", class: "btn btn-primary" %>
         <% end %>
