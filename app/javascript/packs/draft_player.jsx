@@ -17,7 +17,7 @@ const initialState = {
   search_results: [],
   top_list: [],
   fetchStatus: "",
-  loading: false,
+  loading: true,
   filterBy: "",
   choice: "",
 }
@@ -197,11 +197,13 @@ class TopList extends React.Component {
   }
   
   render() {
+    
+
     let home_skaters = _.filter(this.props.items, item => (item.location === "horse_team"))
     let away_skaters = _.filter(this.props.items, item => (item.location === "other_team"))
     
-    let home_team = home_skaters[0] || { "team": "" }
-    let away_team = away_skaters[0] || { "team": "" }
+    let home_team = home_skaters[0]
+    let away_team = away_skaters[0]
     
     let top_home = home_skaters
       .map((item,i) => <li key={i}>{_.titleize(item.name)} G: {item.goals} A: {item.assists} </li>)
@@ -289,41 +291,42 @@ class AsyncApp extends React.Component {
   }
 
   render() {
-
+    
     const { filterBy, Search, searchResults, fetchStatus, loading, topList, SelectSkater, choice, clearSearch } = this.props;
 
     let html = null;
     let skater_names = searchResults.map(user => ( user.name ));
     let top_list = _.sortBy(topList, user => -(user.points) );
-
-    html =
-      <div className="container">
-        <div className="row">
+    if (!this.props.loading) {
+      html =
+        <div className="container">
+          <div className="row">
           
-          <div className="col-sm-3">
-            <div className="input-group">
+            <div className="col-sm-3">
+              <div className="input-group">
               
-              <div className="input-group-btn">
-                <SearchResults items={skater_names} 
-                                onHandleSelect={SelectSkater} 
-                                clearSearch={clearSearch} 
-                                filterBy={filterBy} />
-              </div> 
-                <input className="form-control" value={choice} type="text"  autoFocus="true" onChange={Search}/>
-                 <button type="button" className="btn btn-primary btn-sm">
-                  Draft
-                </button>
-          </div>
+                <div className="input-group-btn">
+                  <SearchResults items={skater_names} 
+                                  onHandleSelect={SelectSkater} 
+                                  clearSearch={clearSearch} 
+                                  filterBy={filterBy} />
+                </div> 
+                  <input className="form-control" value={choice} type="text"  autoFocus="true" onChange={Search}/>
+                  <button type="button" className="btn btn-primary btn-sm">
+                   Draft
+                  </button>
+            </div>
             
-          </div>
+            </div>
           
-          <div className="col-sm-9">
-            <TopList items={top_list} />
-            <p>{fetchStatus}</p>
-          </div>
+            <div className="col-sm-9">
+              <TopList items={top_list} />
+              <p>{fetchStatus}</p>
+            </div>
         
+          </div>
         </div>
-      </div>
+      }
       return (html)
   }
 }

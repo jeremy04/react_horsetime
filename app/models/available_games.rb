@@ -7,6 +7,7 @@ class AvailableGames
   end
 
   def matchups
+    begin
     body = @gateway.get(url: "#{SCHEDULE_URL}#{@date}")
     html_doc = Nokogiri::HTML(body)
     div = html_doc.css(".section-subheader + .day-table-horiz-scrollable-wrapper").first
@@ -15,6 +16,10 @@ class AvailableGames
       hsh = {}
       hsh[:date] = @date
       teams = row.css(".narrow-matchup__team").children
+      
+      # Hack to skip invalid games that wont parse
+      next acc if teams.blank? 
+      
       home_team = teams[1].attributes["title"].value
       away_team = teams[0].attributes["title"].value
       time = row.css(".matchup-time-or-result").first.text.strip
@@ -31,5 +36,9 @@ class AvailableGames
       acc << hsh
       acc
     end
+  end
+  rescue Exception => e
+    raise e
+    []
   end
 end

@@ -1,2 +1,13 @@
-$("#modal-container").html("<%= j render(partial: 'form', layout: 'layouts/modal', locals: {title: "New Game"}) %>");
-$(".modal").modal('show');
+<% if @matchups.present? %>
+
+  $("#modal-container").html("<%= j render(partial: 'form', layout: 'layouts/modal', locals: {title: "New Game"}) %>");
+  $(".modal").modal('show');
+
+<% else %>
+  var options = {};
+  options.title = "Matchup Lookup Failed";
+  options.message = "500 - Hockey matchups failed to load";
+  options.type = "danger";
+  notifyUser(options);
+
+<% end %>

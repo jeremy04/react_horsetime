@@ -11,11 +11,32 @@ module Api
         render json: { success: true, skaters: game.skaters }
       end
 
+      def draft
+        game = Game.find_by!(room_code: skater_params[:room_code])
+        player = Player.where(game_id: game.id).first
+        schema = draft_params(params.merge({ horses: player.horses, game_id: game.id})
+        attrs = schema.output
+        if schema.success?
+          horses = player.dup.horses
+          horses[params[:team]] << params[:choice]
+          player.horses = horses
+          player.save!
+          render json: { success: true }
+        else
+          render json: { success: false }
+        end
+      end
+
       private
 
       def skater_params
         params.permit(:room_code)
       end
+
+      def draft_params(params)
+        DraftSchema.call(params)
+      end
+
 
     end
   end

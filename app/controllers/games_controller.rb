@@ -40,7 +40,14 @@ class GamesController < ApplicationController
     if @schema.success?
       game = Game.find(attrs[:game_id])
       ActiveRecord::Base.transaction do
-        player = Player.new(game: game, user: current_user, name: attrs[:name])
+        player = Player.new(game: game, 
+                            user: current_user, 
+                            name: attrs[:name], 
+                            horses: { 
+                                      home_team: [], 
+                                      away_team: [] 
+                                    }
+                           )
         check_unique do
           player.save or raise ActiveRecord::Rollback
         end

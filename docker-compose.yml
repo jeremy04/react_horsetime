@@ -16,3 +16,8 @@ services:
     environment:
       POSTGRES_USER: react_horse
       POSTGRES_DB: horsetime
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+    db_data:

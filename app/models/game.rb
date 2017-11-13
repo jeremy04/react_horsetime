@@ -20,7 +20,7 @@ class Game < ActiveRecord::Base
 
   def skaters
     drafted = self.players.map do |player| 
-      player.horses["horse_team"].to_a + player.horses["other_team"].to_a 
+      player.horses["home_team"].to_a + player.horses["away_team"].to_a 
     end.compact.flatten.map(&:downcase)
 
     season_stats = Rails.cache.fetch("#{cache_key}/skaters", expires_in: 5.hours) do

@@ -14,6 +14,7 @@ Rails.application.routes.draw do
   namespace :api, constraints: { format: 'json' } do
     namespace :v1 do
       get 'rooms/:room_code/skaters/season_stats', to: 'skaters#season_stats'
+      post 'rooms/:room_code/skaters/draft', to: 'skaters#draft'
     end
 
   end
