@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  get 'sunshine/index'
+
   devise_for :users, skip: [:sessions]
   as :user do
     get 'users/sign_out', to: 'sessions#destroy', as: :destroy_user_session
@@ -21,4 +23,5 @@ Rails.application.routes.draw do
  
   root 'games#index'
 
+  resources :sunshine, only: :index
 end
