@@ -14,8 +14,8 @@ module Api
       def draft
         game = Game.find_by!(room_code: skater_params[:room_code])
         player = Player.where(game_id: game.id).first
-        schema = draft_params(params.merge({ horses: player.horses, game_id: game.id})
-        attrs = schema.output
+        params = draft_params.to_h.merge({ horses: player.horses, game_id: game.id })
+        schema = DraftSchema.call(params) 
         if schema.success?
           horses = player.dup.horses
           horses[params[:team]] << params[:choice]
@@ -33,10 +33,9 @@ module Api
         params.permit(:room_code)
       end
 
-      def draft_params(params)
-        DraftSchema.call(params)
+      def draft_params
+        params.permit(:room_code, :choice, :team)
       end
-
 
     end
   end
