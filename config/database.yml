@@ -9,7 +9,10 @@ default: &default
   pool: 5
 
 development:
-  url: <%= ENV['DATABASE_URL'] %>
+  <<: *default
+  database: horsetime_development
+  username: horsetime
+  password: horsetime
 
 test:
   <<: *default

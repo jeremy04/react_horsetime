@@ -7,19 +7,15 @@ import { Provider, connect } from 'react-redux'
 import { createLogic, createLogicMiddleware } from 'redux-logic'
 import axios from 'axios'
 
+// import with brackets allow specific 'exports' to import
+
 import * as types from './constants/action_types'
 import * as actions from './actions/index' 
 import TopList from './components/top_list'
 import SearchResults from './components/search_results'
+import rootReducer from './reducers/index' 
 
-const initialState = {
-  search_results: [],
-  top_list: [],
-  fetchStatus: "",
-  loading: true,
-  filterBy: "",
-  choice: "",
-}
+// const means you can't redefine the variable as opposed to var
 
 function searchUsers(by) { return { type: types.SEARCH_USERS, by }; }
 function selectSkater(choice) { return { type: types.SELECT_SKATER, choice }; }
@@ -32,68 +28,7 @@ const deps = {
 const arrLogic = [actions.loadUsersLogic, actions.usersFetchLogic];
 const logicMiddleware = createLogicMiddleware(arrLogic, deps);
 
-// reducer catches it, and then transforms?
-function reducer(state = initialState, action) {
-  switch (action.type) {
-    case types.LOAD_USERS:
-      return {
-        ...state,
-        fetchStatus: "Loading Top List... ",
-        top_list: [],
-        loading: true,
-      };
-    case types.LOAD_USERS_FULFILLED:
-      return {
-        ...state,
-        top_list: action.payload,
-        loading: false,
-        fetchStatus: "",
-      }
-    case types.SEARCH_USERS:
-      return {
-        ...state,
-        fetchStatus: `fetching... ${(new Date()).toLocaleString()}`,
-        filterBy: action.by,
-        choice: action.by,
-        search_results: [],
-        loading: true,
-      };
-    case types.SELECT_SKATER:
-      return {
-        ...state,
-        choice: _.titleize(action.choice),
-        search_results: [],
-      }
-    case types.CLEAR_SEARCH:
-       return {
-         ...state,
-         choice: "",
-         search_results: [],
-         loading: false,
-         fetchStatus: "",
-       }
-    case types.SEARCH_USERS_FULFILLED:
-      return {
-        ...state,
-        search_results: action.payload,
-        loading: false,
-        fetchStatus: `Results from ${(new Date()).toLocaleString()}`
-      };
-    case types.SEARCH_USERS_REJECTED:
-      return {
-        ...state,
-        loading: false,
-        fetchStatus: `errored: ${action.payload}`
-      };
-
-    case 'ERROR_GENERATED':
-      return action
-    default:
-      return state
-  }
-}
-
-const store = createStore(reducer, initialState, applyMiddleware(logicMiddleware));
+const store = createStore(rootReducer, applyMiddleware(logicMiddleware));
 
 function mapDispatchToProps(dispatch) {  
   return bindActionCreators({
@@ -132,7 +67,12 @@ class AsyncApp extends React.Component {
               <p>{fetchStatus}</p>
             </div>
     }
-      html =
+
+    // using 'controlled component' input strategy... re-render sets the value, not user typing
+    
+    // top most component should be doing the API calling, and passing data down, since all the components will need it, the Top list will , as well as the drop down
+
+    html =
         <div className="container">
           <div className="row">
           
