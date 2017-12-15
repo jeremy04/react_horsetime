@@ -18,14 +18,15 @@ import rootReducer from './reducers/index'
 // const means you can't redefine the variable as opposed to var
 
 function searchUsers(by) { return { type: types.SEARCH_USERS, by }; }
-function selectSkater(choice) { return { type: types.SELECT_SKATER, choice }; }
+function selectSkater(skater) { return { type: types.SELECT_SKATER, choice: skater.name, location: skater.location }; }
 function clearSearch() { return { type: types.CLEAR_SEARCH }; }
 function loadUsers() { return { type: types.LOAD_USERS }; }
+function draftSkater(choice) { return { type: types.DRAFT_SKATER, choice }; }
 
 const deps = {
   httpClient: axios
 };
-const arrLogic = [actions.loadUsersLogic, actions.usersFetchLogic];
+const arrLogic = [actions.loadUsersLogic, actions.usersFetchLogic, actions.draftSkaterLogic];
 const logicMiddleware = createLogicMiddleware(arrLogic, deps);
 
 const store = createStore(rootReducer, applyMiddleware(logicMiddleware));
@@ -34,6 +35,7 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({
     Search: (ev) => searchUsers(ev.target.value),
     SelectSkater: (skater) => selectSkater(skater),
+    onDraftSelect: (choice) => draftSkater(choice),
     clearSearch,
     loadUsers
   }, dispatch);
@@ -51,13 +53,12 @@ class AsyncApp extends React.Component {
 
   render() {
     
-    const { filterBy, Search, searchResults, fetchStatus, loading, topList, SelectSkater, choice, clearSearch } = this.props;
+    const { filterBy, Search, searchResults, fetchStatus, loading, topList, SelectSkater, choice, clearSearch, onDraftSelect } = this.props;
 
     let html = null;
     let top_html = <div className="col-sm-9" style={{ height: 500 + 'px' }}>
                   </div>;
 
-    let skater_names = searchResults.map(user => ( user.name ));
     let top_list = _.sortBy(topList, user => -(user.points) );
     
     if (!this.props.loading) {
@@ -80,13 +81,13 @@ class AsyncApp extends React.Component {
               <div className="input-group">
               
                 <div className="input-group-btn">
-                  <SearchResults items={skater_names} 
+                  <SearchResults items={searchResults} 
                                   onHandleSelect={SelectSkater} 
                                   clearSearch={clearSearch} 
                                   filterBy={filterBy} />
                 </div> 
                   <input className="form-control" value={choice} type="text"  autoFocus="true" onChange={Search}/>
-                  <button type="button" className="btn btn-primary btn-sm">
+                  <button type="button" onClick={() => onDraftSelect(choice)} className="btn btn-primary btn-sm">
                    Draft
                   </button>
             </div>

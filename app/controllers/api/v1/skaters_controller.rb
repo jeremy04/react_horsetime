@@ -12,7 +12,7 @@ module Api
       end
 
       def draft
-        game = Game.find_by!(room_code: skater_params[:room_code])
+        game = Game.find_by!(room_code: draft_params[:room_code])
         player = Player.where(game_id: game.id).first
         params = draft_params.to_h.merge({ horses: player.horses, game_id: game.id })
         schema = DraftSchema.call(params) 

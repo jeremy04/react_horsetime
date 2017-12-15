@@ -5,7 +5,43 @@ import axios from 'axios'
 function loadUsersFulfilled(users) { return { type: types.LOAD_USERS_FULFILLED, payload: users }; }
 function searchUsersFulfilled(users) {return { type: types.SEARCH_USERS_FULFILLED, payload: users }; }
 function searchUsersRejected(err) { return { type: types.SEARCH_USERS_REJECTED, payload: err, error: true }; }
+function draftSkaterFulfilled(skater) { return { type: types.DRAFT_SKATER_FULFILLED, payload: skaters }; }
+
 function clearSearch() { return { type: types.CLEAR_SEARCH }; }
+
+export const draftSkaterLogic = createLogic({
+  type: types.DRAFT_SKATER,
+  latest: true,
+  async process({ httpClient, getState, action }, dispatch, done) {
+    try {
+      const roomCode = function() {
+        const uri = location.hash.slice(1);
+        return uri;
+      };
+
+      let headers = {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'        
+        }
+      };
+      
+      let appState = getState();
+      console.log("TEAM!");
+      const skater =
+        await httpClient.post(`/api/v1/rooms/${roomCode()}/skaters/draft`, 
+                              { choice: action.choice, team: appState.team_id }, 
+                              headers)
+          .then(resp => resp.data);
+          dispatch(draftSkaterFulfilled(users));
+        } catch(err) {
+          console.error(err);
+          // dispatch error here?
+        }
+    done();
+  }
+})
+
 
 export const loadUsersLogic = createLogic({
   type: types.LOAD_USERS,

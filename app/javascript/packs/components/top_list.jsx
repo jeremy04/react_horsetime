@@ -5,8 +5,8 @@ _.mixin(require("lodash-inflection"));
 
 const TopList = ({ items }) => { 
 
-    let home_skaters = _.filter(items, item => (item.location === "horse_team"))
-    let away_skaters = _.filter(items, item => (item.location === "other_team"))
+    let home_skaters = _.filter(items, item => (item.location === "home_team"))
+    let away_skaters = _.filter(items, item => (item.location === "away_team"))
 
     let home_team = home_skaters[0]
     let away_team = away_skaters[0]
@@ -31,8 +31,8 @@ const TopList = ({ items }) => {
 
 /*
 document.addEventListener('DOMContentLoaded', () => {
-    let top_list = [ { "team": "Flyers", "location": "horse_team", "goals": 0, "assists": 0, "name": "HeyNah" },
-                     { "team": "Flyers", "location": "other_team", "goals": 0, "assists": 0, "name": "GreenSky" }]
+    let top_list = [ { "team": "Flyers", "location": "home_team", "goals": 0, "assists": 0, "name": "HeyNah" },
+                     { "team": "Flyers", "location": "away_team", "goals": 0, "assists": 0, "name": "GreenSky" }]
     var react_div = document.createElement('div');
     react_div.className = "col-12";
 

@@ -25,7 +25,7 @@ class Skater
         ["assists", PlayerStats.new(skater).assists],
         ["points", PlayerStats.new(skater).points],
         ["team", team_info[:home_team_name] ],
-        ["location", "horse_team"]
+        ["location", "home_team"]
       ].to_h.with_indifferent_access
     end
 
@@ -36,7 +36,7 @@ class Skater
         ["assists", PlayerStats.new(skater).assists],
         ["points", PlayerStats.new(skater).points],
         ["team", team_info[:away_team_name] ],
-        ["location", "other_team"]
+        ["location", "away_team"]
       ].to_h.with_indifferent_access
     end
 
@@ -83,14 +83,14 @@ end
 class TeamIdentify
 
   def initialize(game, date=Time.now)
-    @horse_team = game.home_team
+    @home_team = game.home_team
     @latest_game = game.faceoff_stats
     @date = date
   end
 
   def determine_team
-    team = determine_other_team(@latest_game)
-    [get_link(@horse_team), get_link(team)]
+    team = determine_away_team(@latest_game)
+    [get_link(@home_team), get_link(team)]
   end
 
   private
@@ -109,8 +109,8 @@ class TeamIdentify
     "#{link.first}"
   end
 
-  def determine_other_team(element)
-    team = if element["awayTeam"] != @horse_team
+  def determine_away_team(element)
+    team = if element["awayTeam"] != @home_team
               element["awayTeam"]
            else
               element["homeTeam"]

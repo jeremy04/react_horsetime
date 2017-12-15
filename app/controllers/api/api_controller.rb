@@ -1,6 +1,6 @@
 module Api
   class ApiController < ActionController::Base
-    protect_from_forgery with: :exception
+    protect_from_forgery with: :null_session
 
     before_action :ensure_json_request
 

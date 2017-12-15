@@ -45,11 +45,16 @@ class SearchResults extends React.Component {
       items.filter(item => 
               filterBy && 
               filterBy.length > 2 &&  
-               _.toLower(item).indexOf(_.toLower(filterBy)) >= 0 
+               _.toLower(item.name).indexOf(_.toLower(filterBy)) >= 0 
             )
             .map((item, i) => 
-              <div className="dropdown-item" key={i} onClick={() => { onHandleSelect(item) } }>
-                  {_.titleize(item)}
+              <div className="dropdown-item" 
+                  data-team={item.location} 
+                  key={i} 
+                  onClick={() => { onHandleSelect(item) } }
+              >
+                    {_.titleize(item.name)}
+                    { console.log(item) }
               </div>
             );
 
