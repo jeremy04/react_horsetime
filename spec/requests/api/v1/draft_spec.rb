@@ -12,11 +12,27 @@ describe "Draft API", :type => :request do
     params = { choice: "Sidney Crosby", team: "away_team" }
     params = JSON.dump(params)
     game = create(:game)
-    player = create(:player, game: game, user: create(:user) )
+    existing_horses = { "away_team": ["Evgeni Malkin"], "home_team": [] }
+    
+    player = create(:player, game: game, user: create(:user), horses: existing_horses )
     post("/api/v1/rooms/#{game.room_code}/skaters/draft", { params: params, headers: headers })
     json = JSON.parse(response.body)
     expect(response).to have_http_status(200)
-    expect(player.reload.horses["away_team"]).to eql ["Sidney Crosby"]
+    expect(json).to eql({ "success" => true })
+    expect(player.reload.horses["away_team"]).to include("Sidney Crosby", "Evgeni Malkin")
+  end
+
+  it "drafting too many on the same team" do
+    params = { choice: "Sidney Crosby", team: "away_team" }
+    params = JSON.dump(params)
+    game = create(:game)
+    existing_horses = { "away_team": ["One", "Two"], "home_team": [] }
+    
+    player = create(:player, game: game, user: create(:user), horses: existing_horses )
+    post("/api/v1/rooms/#{game.room_code}/skaters/draft", { params: params, headers: headers })
+    json = JSON.parse(response.body)
+    expect(response).to have_http_status(200)
+    expect(json).to eql({ "success" => false })
   end
 
 end

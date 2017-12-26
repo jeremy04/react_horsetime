@@ -6,6 +6,10 @@ function loadUsersFulfilled(users) { return { type: types.LOAD_USERS_FULFILLED, 
 function searchUsersFulfilled(users) {return { type: types.SEARCH_USERS_FULFILLED, payload: users }; }
 function searchUsersRejected(err) { return { type: types.SEARCH_USERS_REJECTED, payload: err, error: true }; }
 function draftSkaterFulfilled(skater) { return { type: types.DRAFT_SKATER_FULFILLED, payload: skaters }; }
+function draftSkaterRejected(err) { 
+  let errs = _.map(err, function(key, value) { return Object.values(key).join(""); });
+  return { type: types.DRAFT_SKATER_REJECTED, payload: errs, error: true }; 
+}
 
 function clearSearch() { return { type: types.CLEAR_SEARCH }; }
 
@@ -25,19 +29,23 @@ export const draftSkaterLogic = createLogic({
           'Accept': 'application/json'        
         }
       };
-      
+
       let appState = getState();
-      console.log("TEAM!");
       const skater =
         await httpClient.post(`/api/v1/rooms/${roomCode()}/skaters/draft`, 
-                              { choice: action.choice, team: appState.team_id }, 
-                              headers)
-          .then(resp => resp.data);
-          dispatch(draftSkaterFulfilled(users));
-        } catch(err) {
-          console.error(err);
-          // dispatch error here?
-        }
+          { choice: action.choice, team: appState.team_id }, 
+          headers)
+        .then(resp => resp.data);
+      if (skater.success) {  
+        dispatch(draftSkaterFulfilled(users));
+      }
+      else {
+        dispatch(draftSkaterRejected(skater.errors));
+      }
+    } catch(err) {
+      console.error(err);
+      // dispatch error here?
+    }
     done();
   }
 })

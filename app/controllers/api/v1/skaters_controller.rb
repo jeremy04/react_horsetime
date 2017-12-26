@@ -13,6 +13,7 @@ module Api
 
       def draft
         game = Game.find_by!(room_code: draft_params[:room_code])
+        # Need to implement authorization of player ;) not just take first player hahah
         player = Player.where(game_id: game.id).first
         params = draft_params.to_h.merge({ horses: player.horses, game_id: game.id })
         schema = DraftSchema.call(params) 
@@ -23,7 +24,7 @@ module Api
           player.save!
           render json: { success: true }
         else
-          render json: { success: false }
+          render json: { success: false, errors: schema.messages(full: true) }
         end
       end
 

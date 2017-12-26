@@ -38,10 +38,9 @@ DraftSchema = Dry::Validation.Schema do
   validate(duplicate_player_name?: [:game_id, :choice]) do |game_id, choice|
     already_picked?(game_id, choice)
   end
-
   required(:horses).schema do
-    required(:home_team).value(max_size?: 2)
-    required(:away_team).value(max_size?: 2)
+    required(:home_team).value(max_size?: 1)
+    required(:away_team).value(max_size?: 1)
   end
   
   required(:choice).filled(:str?)

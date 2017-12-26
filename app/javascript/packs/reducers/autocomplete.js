@@ -47,6 +47,11 @@ export default function autocomplete(state = initialState, action) {
         ...state,
         choice: action.choice,
       }
+    case types.DRAFT_SKATER_REJECTED:
+      return {
+        ...state,
+        fetchStatus: `errored: ${action.payload}`,
+      }
     case types.CLEAR_SEARCH:
        return {
          ...state,
