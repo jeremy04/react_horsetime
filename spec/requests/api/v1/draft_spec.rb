@@ -32,7 +32,17 @@ describe "Draft API", :type => :request do
     post("/api/v1/rooms/#{game.room_code}/skaters/draft", { params: params, headers: headers })
     json = JSON.parse(response.body)
     expect(response).to have_http_status(200)
-    expect(json).to eql({ "success" => false })
+    expect(json).to eql(
+      { 
+        "success": false, 
+        "errors": {
+        "horses":
+          {
+            "away_team": ["away_team size cannot be greater than 2"]
+          }
+        } 
+      }.with_indifferent_access
+    )
   end
 
 end

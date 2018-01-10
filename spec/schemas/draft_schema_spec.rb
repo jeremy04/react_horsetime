@@ -21,9 +21,9 @@ describe DraftSchema do
     
     params = { 
       room_code: game.room_code, 
-      choice: "Evgeni Malkin", 
+      choice: "Something Else", 
       team: "away_team", 
-      horses: { away_team: ['Evgeni Malkin', 'Kris Letang'], home_team: [] }, 
+      horses: { away_team: ['Something Else', 'Evgeni Malkin', 'Kris Letang'], home_team: [] }, 
       game_id: game.id 
     }   
 

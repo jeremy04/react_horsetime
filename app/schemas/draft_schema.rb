@@ -39,8 +39,8 @@ DraftSchema = Dry::Validation.Schema do
     already_picked?(game_id, choice)
   end
   required(:horses).schema do
-    required(:home_team).value(max_size?: 1)
-    required(:away_team).value(max_size?: 1)
+    required(:home_team).value(max_size?: 2)
+    required(:away_team).value(max_size?: 2)
   end
   
   required(:choice).filled(:str?)

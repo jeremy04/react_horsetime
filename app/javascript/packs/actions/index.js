@@ -10,12 +10,22 @@ function draftSkaterRejected(err) {
   let errs = _.map(err, function(key, value) { return Object.values(key).join(""); });
   return { type: types.DRAFT_SKATER_REJECTED, payload: errs, error: true }; 
 }
-
+function hasPlayer(players, choice) { 
+  return _.find(players, { name: _.lowerCase(choice) } ) 
+}
 function clearSearch() { return { type: types.CLEAR_SEARCH }; }
 
 export const draftSkaterLogic = createLogic({
   type: types.DRAFT_SKATER,
   latest: true,
+  validate({ getState, action }, allow, reject) {
+    let appState = getState();
+    if ( hasPlayer(appState.top_list, action.choice) ) {
+      allow(action);
+    } else {
+      reject(draftSkaterRejected( { errors: ["Player not found"]  }  ) );
+    }
+  },
   async process({ httpClient, getState, action }, dispatch, done) {
     try {
       const roomCode = function() {
@@ -31,9 +41,11 @@ export const draftSkaterLogic = createLogic({
       };
 
       let appState = getState();
+      let team_id = hasPlayer(appState.top_list, action.choice).location
+
       const skater =
         await httpClient.post(`/api/v1/rooms/${roomCode()}/skaters/draft`, 
-          { choice: action.choice, team: appState.team_id }, 
+          { choice: action.choice, team: team_id }, 
           headers)
         .then(resp => resp.data);
       if (skater.success) {  

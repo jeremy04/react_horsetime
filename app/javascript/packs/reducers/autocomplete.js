@@ -7,7 +7,6 @@ const initialState = {
   loading: true,
   filterBy: "",
   choice: "",
-  team_id: null,
 }
 
 export default function autocomplete(state = initialState, action) {
@@ -39,7 +38,6 @@ export default function autocomplete(state = initialState, action) {
       return {
         ...state,
         choice: _.titleize(action.choice),
-        team_id: action.location,
         search_results: [],
       }
     case types.DRAFT_SKATER:

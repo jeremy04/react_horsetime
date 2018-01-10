@@ -7,33 +7,34 @@ class SearchResults extends React.Component {
 
   constructor(props) {
     super(props);
-    this.setWrapperRef = this.setWrapperRef.bind(this);           
-    this.handleClickOutside = this.handleClickOutside.bind(this);
+    //this.setWrapperRef = this.setWrapperRef.bind(this);           
+    //this.handleClickOutside = this.handleClickOutside.bind(this);
   }
 
-  componentDidMount() {
-    document.addEventListener('mousedown', this.handleClickOutside);
-  }
+  //componentDidMount() {
+    //document.addEventListener('mousedown', this.handleClickOutside);
+  //}
 
-  componentWillUnmount() {
-    document.removeEventListener('mousedown', this.handleClickOutside);
-  }
+  //componentWillUnmount() {
+    //document.removeEventListener('mousedown', this.handleClickOutside);
+  //}
 
   /**
    * Set the wrapper ref
    */
-  setWrapperRef(node) {
-    this.wrapperRef = node;
-  }
+  //setWrapperRef(node) {
+    //this.wrapperRef = node;
+  //}
 
   /**
    * Clear search if clicked on outside of element
    */
-  handleClickOutside(event) {
-    if (this.wrapperRef && !this.wrapperRef.contains(event.target)) {
-      this.props.clearSearch()
-    }
-  }
+  //handleClickOutside(event) {
+    //if (this.wrapperRef && !this.wrapperRef.contains(event.target)) {
+      //console.log("cleared outside");
+      //this.props.clearSearch()
+    //}
+  //}
 
   render() {
  
@@ -54,7 +55,6 @@ class SearchResults extends React.Component {
                   onClick={() => { onHandleSelect(item) } }
               >
                     {_.titleize(item.name)}
-                    { console.log(item) }
               </div>
             );
 
