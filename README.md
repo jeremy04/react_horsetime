@@ -16,4 +16,6 @@ How to run dockerized:
     docker-compose exec web bundle exec rake db:seed
     docker-compose up
 
+
 Copyright 2018
+Webpacker, ReactJS, Rails 5
